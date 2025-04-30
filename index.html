@@ -26,6 +26,14 @@
             gap: 10px;
             align-items: center;
         }
+        .display-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(2, min-content);
+            gap: 0px;
+            align-items: center;
+            justify-content: end;
+            font-weight: 700;
+        }
 
         .text-center {
             text-align: center;
@@ -220,6 +228,11 @@
             <h4 class="text-right">VAT: £<span id="vat">0.00</span></h4>
             <h4 class="text-right">Gross: £<span id="gross">0.00</span></h4>
             <br />
+            <div class="text-right display-grid-3">
+                <h4 class="text-right min-width-200">Fuel: £</h4>
+                <input type="number" id="fuel" class="form-control  min-width-80" onchange="calculateTotal()" value="0.00"/>
+            </div>
+             <br />
             <h4 class="text-right">Total Payable: £<span id="total">0.00</span></h4>
             <div class="">
                 <h4 class="my-1">Bank Details</h4>
@@ -272,9 +285,11 @@
             });
             document.getElementById("subtotal").innerText = subtotal.toFixed(2);
             // const taxRate = parseFloat(document.getElementById("taxRate").value || 0);
-            const total = subtotal + (subtotal * 20 / 100);
+            const fuel = parseFloat(document.getElementById("fuel").value || 0);
+            const gross = subtotal + (subtotal * 20 / 100);
+            const total = gross + fuel;
             document.getElementById("vat").innerText = (subtotal * 20 / 100).toFixed(2);
-            document.getElementById("gross").innerText = total.toFixed(2);
+            document.getElementById("gross").innerText = gross.toFixed(2);
             document.getElementById("total").innerText = total.toFixed(2);
         }
 
