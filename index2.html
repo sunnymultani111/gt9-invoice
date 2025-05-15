@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Invoice Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 15px;
+        }
+
+        .display-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            align-items: center;
+        }
+
+        .display-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, min-content);
+            gap: 10px;
+            align-items: center;
+        }
+        .display-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(2, min-content);
+            gap: 0px;
+            align-items: center;
+            justify-content: end;
+            font-weight: 700;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .p-20 {
+            padding: 20px;
+        }
+
+        .m-0 {
+            margin: 0;
+        }
+
+        .text-primary {
+            color: #006a00;
+        }
+
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 10px;
+        }
+
+        .outline {
+            border: 1px solid #333;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 5px;
+            text-align: left;
+            vertical-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 6px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        /* .no-print {
+            display: inline-block;
+        } */
+
+        .text-value {
+            display: block;
+            /* padding: 6px;
+            margin: 5px 0;
+            min-height: 25px; */
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin: 0 20px;
+        }
+
+        .my-1 {
+            margin: 5px 0;
+        }
+
+        .invoice-title {
+            font-size: 28px;
+            font-weight: 200;
+            color: #006a00;
+            margin-top: 10px;
+        }
+
+        .text-italic {
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        .bg-primary {
+            background-color: #006a00;
+            color: white;
+            padding: 4px 0px;
+        }
+
+        .invoice-box {
+            margin: 10px auto;
+            padding: 3px 20px;
+        }
+
+        .min-width-200 {
+            min-width: 200px;
+        }
+        .min-width-600 {
+            min-width: 717px;
+        }
+        #itemTable tbody .form-control{
+            margin: 0;
+        }
+        .min-width-80 {
+            min-width: 80px;
+        }
+        .py-5{
+            padding: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-box" id="invoice">
+        <div class="outline">
+            <h2 class="text-center invoice-title">INVOICE</h2>
+            <div class="display-grid">
+                <div class="">
+                    <h4 class="text-primary my-1">GT9 CONTRACTORS LTD</h4>
+                    <h4 class="my-1">VAT REG NO.: 454 175 881</h4>
+                    <p class="my-1">Contact No.: 07725 277 770</p>
+                    <p class="my-1">Email: gt9contractorsltd@gmail.com</p>
+                </div>
+                <div class="text-right">
+                    <img src="gt9_logo.png" class="logo" alt="GT9 CONTRACTORS LTD" />
+                </div>
+            </div>
+            <br />
+            <br />
+            <label class="text-italic">To<br />
+                <input class="form-control" id="companyName" placeholder="Company Name" value="" />
+            </label><br /> <br />
+            <div class="display-grid-2 text-italic">
+            <label>Site:</label>
+            <input class="form-control min-width-600" id="siteName" placeholder="Site Name" />  
+        </div>
+            <br />
+            <div class="display-grid-2">
+                <label>For:</label>
+                <input type="text" class="form-control min-width-200" id="invoiceForDate" placeholder="Invoice for Date (dd/mm/yyyy)" />
+            </div>
+            
+            <br />
+            <div class="display-grid bg-primary invoice-box">
+                <div class="display-grid-2">
+                    <label>Invoice: </label>
+                    <input class="form-control min-width-200" id="invoiceNumber" placeholder="Invoice Number"
+                        value="" />
+                </div>
+                <div class="text-right display-grid-2">
+                    <label>Date: </label>
+                    <input type="text" class="form-control min-width-200" placeholder="Invoice Date (dd/mm/yyyy)"
+                        id="invoiceDate" />
+                </div>
+            </div>
+            <table id="itemTable">
+                <thead>
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Worker's Name</th>
+                        <th>Trade</th>                        
+                        <th>Charge Rate (in £)</th>
+                         <th> <input type="text" class="form-control" value="Shift worked"/></th>
+                        <th class="min-width-80">Total (in £)</th>
+                        <th class="no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <button class="no-print" onclick="addItem()">+ Add Worker</button>
+
+            <h4 class="text-right">Net: £<span id="subtotal">0.00</span></h4>
+            <!-- <h4 class="text-right">VAT: £<span id="vat">0.00</span></h4> -->
+            <h4 class="text-right">Gross: £<span id="gross">0.00</span></h4>
+            <br />
+            <div class="text-right display-grid-3">
+                <h4 class="text-right min-width-200">Fuel: £</h4>
+                <input type="number" id="fuel" class="form-control  min-width-80" onchange="calculateTotal()" value="0.00"/>
+            </div>
+             <br />
+            <h4 class="text-right">Total Payable: £<span id="total">0.00</span></h4>
+            <div class="">
+                <h4 class="my-1">Bank Details</h4>
+                <p class="my-1">Bank Name: Lloyds Bank </p>
+                <p class="my-1">Sort Code : 30-99-50</p>
+                <p class="my-1">Account Number : 63966360</p>
+            </div>
+            <br />
+            <div class="bg-primary py-5">
+                <p class="m-0 text-center">Company Number: 13543221, Registered Office: 38 New Zealand, Rainham, RM13
+                    8JH</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <button class="no-print" onclick="generatePDF()">Download PDF</button>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        let itemIndex = 1;
+
+        function addItem(worker = '',trade = '', qty = 1, rate = 0) {
+            const tbody = document.querySelector("#itemTable tbody");
+            const row = document.createElement("tr");
+            row.innerHTML = `
+        <td class="text-center">${itemIndex}.</td>
+        <td><input class="form-control" value="${worker}" onchange="calculateTotal()" /></td>
+        <td><input class="form-control" value="${trade}" onchange="calculateTotal()" /></td>
+        <td><input type="number" class="form-control rate" value="${rate}" onchange="calculateTotal()" /></td>
+        <td><input type="number" class="form-control qty" value="${qty}" onchange="calculateTotal()" /></td>        
+        <td class="amount">0.00</td>
+        <td class="no-print"><button onclick="this.parentElement.parentElement.remove(); calculateTotal()">Delete</button></td>
+      `;
+            tbody.appendChild(row);
+            itemIndex++;
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let subtotal = 0;
+            document.querySelectorAll("#itemTable tbody tr").forEach(row => {
+                const qty = parseFloat(row.querySelector(".qty").value || 0);
+                const rate = parseFloat(row.querySelector(".rate").value || 0);
+                const amount = qty * rate;
+                row.querySelector(".amount").innerText = amount.toFixed(2);
+                subtotal += amount;
+            });
+            document.getElementById("subtotal").innerText = subtotal.toFixed(2);
+            // const taxRate = parseFloat(document.getElementById("taxRate").value || 0);
+            const fuel = parseFloat(document.getElementById("fuel").value || 0);
+            // const gross = subtotal + (subtotal * 20 / 100);
+            const gross = subtotal;
+            const total = gross + fuel;
+            // document.getElementById("vat").innerText = (subtotal * 20 / 100).toFixed(2);
+            document.getElementById("gross").innerText = gross.toFixed(2);
+            document.getElementById("total").innerText = total.toFixed(2);
+        }
+
+        function replaceInputsWithText(container) {
+            const inputs = container.querySelectorAll("input, textarea");
+            const replaced = [];
+
+            inputs.forEach(input => {
+                const span = document.createElement("span");
+                span.textContent = input.value;
+                span.className = "text-value";
+                span.style.whiteSpace = "pre-wrap";
+                input.style.display = "none";
+                input.insertAdjacentElement("afterend", span);
+                replaced.push({ input, span });
+            });
+
+            return replaced;
+        }
+
+        function restoreInputs(replacedList) {
+            replacedList.forEach(({ input, span }) => {
+                span.remove();
+                input.style.display = "";
+            });
+        }
+
+        async function generatePDF2() {
+            document.querySelectorAll('.no-print').forEach(el => el.style.display = 'none');
+            const replaced = replaceInputsWithText(document.getElementById("invoice"));
+
+            const element = document.getElementById("invoice");
+            const canvas = await html2canvas(element);
+            const imgData = canvas.toDataURL("image/png");
+
+            const pdf = new jspdf.jsPDF();
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`Invoice_${document.getElementById("invoiceNumber").value}.pdf`);
+
+            restoreInputs(replaced);
+            document.querySelectorAll('.no-print').forEach(el => el.style.display = '');
+        }
+
+        async function generatePDF() {
+            // Hide buttons and switch to printable text
+            document.querySelectorAll('.no-print').forEach(el => el.style.display = 'none');
+            const replaced = replaceInputsWithText(document.getElementById("invoice"));
+
+            const invoiceElement = document.getElementById("invoice");
+
+            // Render invoice to canvas
+            const canvas = await html2canvas(invoiceElement, { scale: 2 });
+            const imgData = canvas.toDataURL("image/png");
+
+            const pdf = new jspdf.jsPDF("p", "mm", "a4");
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            const imgProps = pdf.getImageProperties(imgData);
+            const imgWidth = pdfWidth;
+            const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // First page
+            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pdfHeight;
+
+            // Add pages if content overflows
+            while (heightLeft > 0) {
+                position -= pdfHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                heightLeft -= pdfHeight;
+            }
+
+            pdf.save(`Invoice_${document.getElementById("invoiceNumber").value}.pdf`);
+
+            // Restore display
+            restoreInputs(replaced);
+            document.querySelectorAll('.no-print').forEach(el => el.style.display = '');
+        }
+
+
+        // Add a default item row when page loads
+        addItem();
+    </script>
+</body>
+
+</html>
